@@ -1,5 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
 import CartModel from "../models/cart.js";
-import FlightModel from "../models/flight.js"
+import FlightModel from "../models/flight.js";
+import UserModel from "../models/user.js";
 
 const ADD_CART = async (req, res) => {
   try {
@@ -7,6 +9,7 @@ const ADD_CART = async (req, res) => {
       date: req.body.date,
       userEmail: req.body.userEmail,
       userCartProducts_ids: req.body.userCartProducts_ids,
+      cartId: uuidv4()
     });
 
     const response = await cart.save();
@@ -19,7 +22,6 @@ const ADD_CART = async (req, res) => {
     return res.status(500).json({ message: "error happened" });
   }
 };
-
 
 const GET_CARTS = async (req, res) => {
   try {
@@ -41,10 +43,9 @@ const GET_CARTS = async (req, res) => {
   }
 };
 
-
 const GET_CART_BY_ID = async (req, res) => {
   try {
-    const cart = await CartModel.findById(req.params.id);
+    const cart = await CartModel.findOne({ cartId: req.params.id });
 
     if (!cart) {
       return res
@@ -52,7 +53,7 @@ const GET_CART_BY_ID = async (req, res) => {
         .json({ message: `Cart with id: ${req.params.id} was not found` });
     }
 
-    return res.json({ flight: flight });
+    return res.json({ cart: cart });
   } catch (err) {
     console.log("handled error: ", err);
     return res.status(500).json({ message: "error happened" });
@@ -61,14 +62,19 @@ const GET_CART_BY_ID = async (req, res) => {
 
 const ADD_TO_CART = async (req, res) => {
   try {
-    const flight = await FlightModel.findById(req.body.id);
+    const flight = await FlightModel.findById(req.params.id);
     if (!flight) {
       return res.status(404).json({ message: "Flight not found" });
     }
 
+    const user = await UserModel.findOne({ userEmail: req.body.userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const cart = await CartModel.findOneAndUpdate(
       { userEmail: req.body.userEmail },
-      { $push: { userCartProducts_ids: flight.id } }, 
+      { $push: { userCartProducts_ids: flight.id } },
       { new: true, upsert: true }
     );
 
@@ -79,10 +85,4 @@ const ADD_TO_CART = async (req, res) => {
   }
 };
 
-
-export {
-  ADD_CART,
-  GET_CART_BY_ID,
-  GET_CARTS,
-  ADD_TO_CART
-};
+export { ADD_CART, GET_CART_BY_ID, GET_CARTS, ADD_TO_CART };

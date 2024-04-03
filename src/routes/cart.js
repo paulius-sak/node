@@ -14,6 +14,6 @@ router.get("/carts/:id", GET_CART_BY_ID);
 
 router.get("/carts", GET_CARTS);
 
-router.post("/addToCart", ADD_TO_CART);
+router.post("/addToCart/:id", ADD_TO_CART);
 
 export default router;
