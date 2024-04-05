@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 import CartModel from "../models/cart.js";
 import FlightModel from "../models/flight.js";
 import UserModel from "../models/user.js";
+
 
 const ADD_CART = async (req, res) => {
   try {
@@ -74,7 +76,7 @@ const ADD_TO_CART = async (req, res) => {
 
     const cart = await CartModel.findOneAndUpdate(
       { userEmail: req.body.userEmail },
-      { $push: { userCartProducts_ids: flight.id } },
+      { $push: { userCartProducts_ids: flight.id, flightList: flight } },
       { new: true, upsert: true }
     );
 
@@ -85,4 +87,34 @@ const ADD_TO_CART = async (req, res) => {
   }
 };
 
-export { ADD_CART, GET_CART_BY_ID, GET_CARTS, ADD_TO_CART };
+const DELETE_FLIGHT_BY_ID_FROM_CART = async (req, res) => {
+  try {
+
+    if (!req.params.flightId) {
+      return res.status(400).json({ message: "Flight ID is undefined" });
+    }
+
+    const cart = await CartModel.findOne({ cartId: req.params.cartId });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const flightIndex = cart.flightList.findIndex(flight => flight.id === req.params.flightId);
+
+    if (flightIndex === -1) {
+      return res.status(404).json({ message: "Flight not found in the cart" });
+    }
+
+    cart.flightList.splice(flightIndex, 1);
+    await cart.save();
+
+    return res.status(200).json({ message: "Flight removed from the cart", cart: cart });
+  } catch (err) {
+    console.log("Handled error:", err);
+    return res.status(500).json({ message: "An error occurred" });
+  }
+};
+
+
+export { ADD_CART, GET_CART_BY_ID, GET_CARTS, ADD_TO_CART, DELETE_FLIGHT_BY_ID_FROM_CART };
