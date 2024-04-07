@@ -64,7 +64,7 @@ const GET_CART_BY_ID = async (req, res) => {
 
 const ADD_TO_CART = async (req, res) => {
   try {
-    const flight = await FlightModel.findById(req.params.id);
+    const flight = await FlightModel.findOne({ flightId: req.params.flightId });
     if (!flight) {
       return res.status(404).json({ message: "Flight not found" });
     }
@@ -76,7 +76,7 @@ const ADD_TO_CART = async (req, res) => {
 
     const cart = await CartModel.findOneAndUpdate(
       { userEmail: req.body.userEmail },
-      { $push: { userCartProducts_ids: flight.id, flightList: flight } },
+      { $push: { userCartProducts_ids: flight.flightId, flightList: flight } },
       { new: true, upsert: true }
     );
 
@@ -100,7 +100,7 @@ const DELETE_FLIGHT_BY_ID_FROM_CART = async (req, res) => {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    const flightIndex = cart.flightList.findIndex(flight => flight.id === req.params.flightId);
+    const flightIndex = cart.flightList.findIndex(flight => flight.flightId === req.params.flightId);
 
     if (flightIndex === -1) {
       return res.status(404).json({ message: "Flight not found in the cart" });

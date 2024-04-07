@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const flightSchema = mongoose.Schema({
-  id: {type: String, required: true},
+  flightId: {type: String, required: true},
   price: { type: Number, required: true },
   departureCity: { type: String, required: true, min: 2 },
   destinationCity: { type: String, required: true, min: 2 },

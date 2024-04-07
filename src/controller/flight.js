@@ -1,15 +1,16 @@
+import { v4 as uuidv4 } from 'uuid';
 import FlightModel from "../models/flight.js";
-
 const CREATE_FLIGHT = async (req, res) => {
   try {
     const flight = new FlightModel({
+      flightId: uuidv4(),
       price: req.body.price,
       departureCity: req.body.departureCity,
       destinationCity: req.body.destinationCity,
       destinationCityPhotoUrl: req.body.destinationCityPhotoUrl,
       departureTime: req.body.departureTime,
     });
-    flight.id = flight._id.toString()
+    
 
     const response = await flight.save();
 
@@ -44,12 +45,12 @@ const GET_ALL_FLIGHTS = async (req, res) => {
 
 const GET_FLIGHT_BY_ID = async (req, res) => {
   try {
-    const flight = await FlightModel.findById(req.params.id);
+    const flight = await FlightModel.findOne({ flightId: req.params.flightId });
 
     if (!flight) {
       return res
         .status(404)
-        .json({ message: `Flight with id: ${req.params.id} was not found` });
+        .json({ message: `Flight with id: ${req.params.flightId} was not found` });
     }
 
     return res.json({ flight: flight });
@@ -61,17 +62,17 @@ const GET_FLIGHT_BY_ID = async (req, res) => {
 
 const DELETE_FLIGHT = async (req, res) => {
   try {
-    const deletedFlight = await FlightModel.findByIdAndDelete(req.params.id);
+    const deletedFlight = await FlightModel.findOneAndDelete({ flightId: req.params.flightId });
 
     if (!deletedFlight) {
       return res
         .status(404)
-        .json({ message: `Flight width id: ${req.params.id} not found` });
+        .json({ message: `Flight width id: ${req.params.flightId} not found` });
     }
 
     return res
       .status(200)
-      .json({ message: `Flight with id: ${req.params.id} was deleted` });
+      .json({ message: `Flight with id: ${req.params.flightId} was deleted` });
   } catch (err) {
     console.log("handled error: ", err);
     return res.status(500).json({ message: "error happened" });
@@ -81,7 +82,7 @@ const DELETE_FLIGHT = async (req, res) => {
 const UPDATE_FLIGHT_BY_ID = async (req, res) => {
   try {
     const updatedFlight = await FlightModel.findByIdAndUpdate(
-      req.params.id,
+      req.params.flightId,
       req.body,
       { new: true }
     );

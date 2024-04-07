@@ -13,10 +13,10 @@ router.post("/flights", CREATE_FLIGHT);
 
 router.get("/flights", GET_ALL_FLIGHTS);
 
-router.get("/flights/:id", GET_FLIGHT_BY_ID);
+router.get("/flights/:flightId", GET_FLIGHT_BY_ID);
 
-router.delete("/flights/:id", DELETE_FLIGHT);
+router.delete("/flights/:flightId", DELETE_FLIGHT);
 
-router.put("/flights/:id", UPDATE_FLIGHT_BY_ID);
+router.put("/flights/:flightId", UPDATE_FLIGHT_BY_ID);
 
 export default router;
