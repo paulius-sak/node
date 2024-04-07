@@ -27,7 +27,7 @@ const GET_ALL_FLIGHTS = async (req, res) => {
   try {
     const flights = await FlightModel.find();
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = parseInt(req.query.limit) || 10;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
@@ -81,15 +81,15 @@ const DELETE_FLIGHT = async (req, res) => {
 
 const UPDATE_FLIGHT_BY_ID = async (req, res) => {
   try {
-    const updatedFlight = await FlightModel.findByIdAndUpdate(
-      req.params.flightId,
+    const updatedFlight = await FlightModel.findOneAndUpdate(
+      { flightId: req.params.flightId },
       req.body,
       { new: true }
     );
     if (!updatedFlight) {
       return res
         .status(404)
-        .json({ message: `Flight width id: ${req.params.id} not found` });
+        .json({ message: `Flight width id: ${req.params.flightId} not found` });
     }
 
     return res.json({ updatedFlight: updatedFlight });
