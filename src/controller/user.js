@@ -1,12 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
 import UserModel from "../models/user.js";
+import bcrypt from "bcrypt";
 
 const ADD_USER = async (req, res) => {
   try {
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt)
+
+
     const user = new UserModel({
       userId: uuidv4(),
       userName: req.body.userName,
       userEmail: req.body.userEmail,
+      password: hash,
       userCartProducts_ids: []
     });
 
