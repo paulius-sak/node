@@ -11,6 +11,7 @@ const ADD_CART = async (req, res) => {
       date: req.body.date,
       userEmail: req.body.userEmail,
       userCartProducts_ids: req.body.userCartProducts_ids,
+      userId: req.body.userId,
       cartId: uuidv4()
     });
 
@@ -27,16 +28,7 @@ const ADD_CART = async (req, res) => {
 
 const GET_CARTS = async (req, res) => {
   try {
-    const carts = await CartModel.aggregate([
-      {
-        $lookup: {
-          from: "flights",
-          localField: "userCartProducts_ids",
-          foreignField: "id",
-          as: "cart",
-        },
-      },
-    ]).exec();
+    const carts = await CartModel.find({userId: req.body.userId})
 
     return res.json({ carts: carts });
   } catch (err) {

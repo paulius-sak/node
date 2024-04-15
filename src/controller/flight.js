@@ -4,11 +4,7 @@ const CREATE_FLIGHT = async (req, res) => {
   try {
     const flight = new FlightModel({
       flightId: uuidv4(),
-      price: req.body.price,
-      departureCity: req.body.departureCity,
-      destinationCity: req.body.destinationCity,
-      destinationCityPhotoUrl: req.body.destinationCityPhotoUrl,
-      departureTime: req.body.departureTime,
+      ...req.body
     });
     
 

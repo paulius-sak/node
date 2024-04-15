@@ -5,6 +5,7 @@ const cartSchema = mongoose.Schema({
   userEmail: { type: String, required: true },
   userCartProducts_ids: {type: Array},
   cartId: { type: String, required: true },
+  userId: { type: String, required: true },
   flightList: []
 });
 

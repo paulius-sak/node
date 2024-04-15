@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import UserModel from "../models/user.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import UserModel from "../models/user.js";
 
-const ADD_USER = async (req, res) => {
+const SIGN_IN = async (req, res) => {
   try {
 
     const salt = bcrypt.genSaltSync(10);
@@ -21,7 +22,7 @@ const ADD_USER = async (req, res) => {
 
     return res
       .status(201)
-      .json({ status: "User was added", response: response });
+      .json({ status: "User sign-in successful", response: response });
   } catch (err) {
     console.log("handled error: ", err);
     return res.status(500).json({ message: "error happened" });
@@ -67,4 +68,37 @@ const GET_USERS_BY_ID = async (req, res) => {
   };
 
 
-export { ADD_USER, GET_USERS_BY_ID };
+  const LOG_IN = async (req, res) => {
+    try {
+      const user = await UserModel.findOne({userEmail: req.body.userEmail})
+
+      if(!user) {
+        return res.status(500).json({message: "User data is bad"})
+      }
+
+      const isPasswordMatch = bcrypt.compareSync(
+        req.body.password,
+        user.password
+      )
+
+      if(!isPasswordMatch) {
+        return res.status(501).json({message: "User data is bad"})
+      }
+
+      const jwt_token = jwt.sign(
+        {email: user.userEmail, user_id: user.userId},
+        process.env.JWT_SECRET,
+        {expiresIn: "20h"}
+      )
+      
+  
+      return res
+        .status(201)
+        .json({ jwt: jwt_token, message: "User log-in successful"});
+    } catch (err) {
+      console.log("handled error: ", err);
+      return res.status(500).json({ message: "error happened" });
+    }
+  };
+
+export { SIGN_IN, GET_USERS_BY_ID, LOG_IN };
